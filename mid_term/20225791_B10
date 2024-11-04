@@ -1,0 +1,110 @@
+#10. Nhập mảng số nguyên từ bàn phím. In ra màn hình số lẻ lớn nhất nhỏ hơn mọi số chẵn trong mảng. 
+.data
+	array: .space 1000     # Khai báo không gian cho mảng (điều chỉnh kích thước nếu cần)
+	array_odd: .space 1000 #	mang cac so le
+	array_size: .word 0   # Biến lưu số lượng phần tử của mảng
+	message1: .asciiz "Nhap so luong phan tu cua mang:"
+	message2: .asciiz "\nNhap phan tu thu "
+	message3: .asciiz":"
+	message4: .asciiz" "
+	message5: .asciiz "Phan tu le thoa man la:"
+	message6: .asciiz"Khong ton tai phan tu thoa man"
+.text
+import_arr_size: 
+    	# Hiển thị thông báo nhập số lượng phần tử của mảng
+    	li $v0, 4              
+    	la $a0, message1  
+    	syscall
+    	# Doc message1
+    	li $v0, 5              
+    	syscall
+    	move $s0, $v0          # Lưu số lượng phần tử cua mang vào $t0
+    	sw $s0, array_size     # Lưu số lượng phần tử vào biến array_size
+    	li $t1, 0       # Khởi tạo biến đếm bằng 0
+    	la $t0,array
+    	#luu so luong phan tu cua mang vao s0 # 
+import_element_arr:
+    	bge $t1, $s0, end_input  # Thoát khỏi vòng lặp nếu đếm bằng số lượng phần tử
+    	# Hiển thị thông báo nhập phần tử thứ i
+    	li $v0, 4                   
+    	la $a0, message2
+    	syscall
+    	li $v0, 1                   # syscall code for print_integer
+    	move $a0, $t1               # Đưa số thứ tự phần tử vào $a0
+    	syscall
+    	li $v0, 4                   # syscall code for print_string
+    	la $a0, message3    # load address of the prompt string
+    	syscall
+    	# Đọc phần tử từ bàn phím
+    	li $v0, 5              # syscall code for read_integer
+    	syscall
+   	# Tính địa chỉ của phần tử trong mảng và lưu giá trị vào đó
+   	sll $t2, $t1, 2        # $t2 = $t1 * 4 (vì 1 word = 4 byte)
+    	add $t2, $t2, $t0      # $t2 = array + $t1 * 4
+    	sw $v0, ($t2)          # Lưu phần tử vào mảng
+    	addi $t1, $t1, 1       # Tăng biến đếm
+    	j  import_element_arr  # Nhảy lại vòng lặp để nhập phần tử tiếp theo
+end_input:
+declare_var:
+	la $s1,array # load dia chi cua mang vao arr
+	li $t0,0 # load i=0
+	li $a0,0 # load so phan tu cua mang so chan
+	li $t1,2 # load t1=2
+	li $s3,1000000000 # dat t1 la so chan nho nhat
+	li $s4, -1000000000 #dat t2 la so le lon nhat thoa man
+	la $s2,array_odd #load dia chi cua mang cac so le 
+loop1:
+	bge $t0,$s0,end_loop1 # i>=arr.size() thi dung
+	sll $t2,$t0,2 # dat t2=4*t0
+	add $s5,$s1,$t2 # load dia chi A{i]
+	lw $t3,0($s5) #luu t3=A[i]
+	div $t3,$t1 # chia t3 cho 2
+	mfhi $t4 # luu so du ra t4
+	beqz $t4,even # kiem tra xem co phai so chan ko
+odd:
+	bgt $t3,$s3,continue # neu lon hon so chan thi tiep tuc vong lap
+	sll $t2,$a0,2 # dat t2=4*a0
+	add $s5,$s2,$t2 # load dia chi B[i]
+	sw $t3,0($s5) # luu B{i]=t3
+	add $a0,$a0,1 # a0=a0+1
+	j continue
+even:
+	bgt $t3,$s3,continue
+	move $s3, $t3
+	j continue
+continue: 
+	add $t0,$t0,1 # i=i+1
+	j loop1
+end_loop1:
+	li $t0,0
+loop2:
+	bge $t0,$a0,end_loop2
+	sll $t1,$t0,2
+	add $s5,$t1,$s2 # load dia chi cua B[i}
+	lw $t2,0($s5) # load t2=B[i}
+	bgt $t2,$s3,continue2
+	blt $t2,$s4,continue2
+	move $s4,$t2 # neu thoa man cap nhat max=t2
+	j continue2
+continue2:
+	add $t0,$t0,1 # load t0=t0+1
+	j loop2
+end_loop2:
+	beq $s4,-1000000000,continue3
+	li $v0,4
+	la $a0,message5
+	syscall
+	li $v0,1
+	move $a0,$s4
+	syscall
+	j end
+continue3:
+	li $v0,4
+	la $a0,message6
+	syscall
+end:
+		
+
+
+	
+	

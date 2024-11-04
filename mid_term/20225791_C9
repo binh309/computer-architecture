@@ -1,0 +1,86 @@
+#C.xau ky tu : nhap vao xau ky tu. Dem so nguyen am trong cau
+.data
+	arr: .word 65,69,73,79 85
+	message1: .asciiz 
+	message2: .asciiz "Nhap vao xau ky tu:"
+	message3: .asciiz "So nguyen am trong cau:"
+.text
+import_data:
+	li $v0,4
+	la $a0,message2
+	syscall
+	# in ra message2
+	li $v0,8
+	la $a0,message1
+	li $a1,1000
+	syscall
+	# nhap xau:
+declare_var:
+	la $s0,arr # s0 luu dia chi mang arr
+	la $s1,message1 # luu dia chi cua message1
+	li $t0,0 # load i=0
+	li $a0,0 # bien count	
+main:
+	add $s2,$t0,$s1 # luu dia chi cua message1[i]
+	lb $t1,0($s2) # t1=mess[i]
+	beqz $t1, end
+	bge $t1,97,case6
+	blt $t1,65,continue
+	bgt $t1,117,continue
+switch:
+case1:
+	
+	bne $t1,65,case2 # A
+	add $a0,$a0,1
+	j continue
+case2:
+ 	 bne $t1,69,case3 # E
+	add $a0,$a0,1
+	j continue
+case3:
+ 	 bne $t1,73,case4 #I
+	add $a0,$a0,1
+	j continue
+case4:
+ 	 bne $t1,79,case5 #O
+	add $a0,$a0,1
+	j continue		
+case5:
+ 	 bne $t1,85,continue# U
+	add $a0,$a0,1
+	j continue
+case6:
+	bne $t1,97,case7 #a
+	add $a0,$a0,1
+	j continue
+case7:
+ 	 bne $t1,101,case8 #e
+	add $a0,$a0,1
+	j continue
+case8:
+ 	 bne $t1,105,case9 #i
+	add $a0,$a0,1
+	j continue
+case9:
+ 	 bne $t1,111,case10 # o
+	add $a0,$a0,1
+	j continue		
+case10:
+ 	 bne $t1,117,continue #u
+	add $a0,$a0,1
+	j continue
+continue:
+	add $t0,$t0,1
+	j main
+end:
+	move $s1,$a0
+	li $v0,4
+	la $a0,message3
+	syscall
+	li $v0,1
+	move $a0,$s1
+	syscall
+exit:
+	
+
+	
